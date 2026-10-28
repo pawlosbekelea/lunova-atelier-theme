@@ -1,0 +1,262 @@
+{{ 'section-collection-list.css' | asset_url | stylesheet_tag }}
+{{ 'component-card.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lunova-category-carousel.js' | asset_url }}" defer="defer"></script>
+
+{%- style -%}
+  #LunovaCollectionList-{{ section.id }} {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+  @media screen and (min-width: 750px) {
+    #LunovaCollectionList-{{ section.id }} {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+{%- endstyle -%}
+
+<section id="LunovaCollectionList-{{ section.id }}" class="lunova-category-section color-{{ section.settings.color_scheme }} gradient" aria-labelledby="LunovaCollectionHeading-{{ section.id }}">
+  <div class="page-width lunova-category-section__inner">
+    {%- if section.settings.title != blank -%}
+      <div class="lunova-category-section__heading-row">
+        <h2 id="LunovaCollectionHeading-{{ section.id }}" class="lunova-category-section__heading {{ section.settings.heading_size }}">
+          {{ section.settings.title | escape }}
+        </h2>
+        <div class="lunova-category-section__controls" aria-label="Category carousel controls">
+          <button type="button" class="lunova-category-section__arrow" data-category-scroll="prev" aria-label="Scroll categories left">
+            <span aria-hidden="true">&#8249;</span>
+          </button>
+          <button type="button" class="lunova-category-section__arrow" data-category-scroll="next" aria-label="Scroll categories right">
+            <span aria-hidden="true">&#8250;</span>
+          </button>
+        </div>
+      </div>
+    {%- endif -%}
+
+    <ul class="lunova-category-track" data-category-track role="list">
+      {%- for block in section.blocks -%}
+        {%- assign category_collection = block.settings.collection -%}
+        {%- assign category_title = block.settings.title | strip -%}
+        {%- if category_collection != blank and category_title == blank -%}
+          {%- assign category_title = category_collection.title -%}
+        {%- endif -%}
+        {%- if category_title == blank -%}
+          {%- assign category_title = 'Category' -%}
+        {%- endif -%}
+        {%- assign category_image = block.settings.image -%}
+        {%- if category_image == blank and category_collection != blank -%}
+          {%- assign category_image = category_collection.featured_image -%}
+        {%- endif -%}
+        <li class="lunova-category-card" {{ block.shopify_attributes }}>
+          {%- if category_collection != blank -%}
+            <a class="lunova-category-card__link" href="{{ category_collection.url }}" aria-label="Shop {{ category_title | escape }}">
+          {%- else -%}
+            <div class="lunova-category-card__link lunova-category-card__link--test" aria-label="{{ category_title | escape }} test category">
+          {%- endif -%}
+              <span class="lunova-category-card__image-wrap">
+                {%- if category_image != blank -%}
+                  {{ category_image | image_url: width: 240 | image_tag: loading: 'lazy', widths: '80, 120, 180, 240', class: 'lunova-category-card__image', alt: category_title }}
+                {%- else -%}
+                  <span class="lunova-category-card__placeholder" aria-hidden="true">
+                    <svg viewBox="0 0 48 48" role="presentation" focusable="false">
+                      <rect x="9" y="10" width="30" height="28" rx="7" fill="none" stroke="currentColor" stroke-width="2.4"/>
+                      <path d="M16 19h16M16 25h11M16 31h8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                {%- endif -%}
+              </span>
+              <span class="lunova-category-card__title">{{ category_title | escape }}</span>
+          {%- if category_collection != blank -%}
+            </a>
+          {%- else -%}
+            </div>
+          {%- endif -%}
+        </li>
+      {%- endfor -%}
+    </ul>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "t:sections.collection-list.name",
+  "tag": "section",
+  "class": "section section-collection-list",
+  "max_blocks": 20,
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "title",
+      "default": "t:sections.collection-list.settings.title.default",
+      "label": "t:sections.collection-list.settings.title.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "options": [
+        {
+          "value": "h2",
+          "label": "t:sections.all.heading_size.options__1.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.all.heading_size.options__2.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.all.heading_size.options__3.label"
+        },
+        {
+          "value": "hxl",
+          "label": "t:sections.all.heading_size.options__4.label"
+        },
+        {
+          "value": "hxxl",
+          "label": "t:sections.all.heading_size.options__5.label"
+        }
+      ],
+      "default": "h1",
+      "label": "t:sections.all.heading_size.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.collection-list.settings.header_layout.content"
+    },    
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.collection-list.settings.image_ratio.options__1.label"
+        },
+        {
+          "value": "portrait",
+          "label": "t:sections.collection-list.settings.image_ratio.options__2.label"
+        },
+        {
+          "value": "square",
+          "label": "t:sections.collection-list.settings.image_ratio.options__3.label"
+        }
+      ],
+      "default": "square",
+      "label": "t:sections.collection-list.settings.image_ratio.label"
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 1,
+      "max": 6,
+      "step": 1,
+      "default": 3,
+      "label": "t:sections.collection-list.settings.columns_desktop.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "t:sections.all.colors.label",
+      "info": "t:sections.all.colors.has_cards_info",
+      "default": "scheme-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_view_all",
+      "default": false,
+      "label": "t:sections.collection-list.settings.show_view_all.label",
+      "info": "t:sections.collection-list.settings.show_view_all.info"   
+    },
+    {
+      "type": "header",
+      "content": "t:sections.collection-list.settings.header_mobile.content"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "options": [
+        {
+          "value": "1",
+          "label": "t:sections.collection-list.settings.columns_mobile.options__1.label"
+        },
+        {
+          "value": "2",
+          "label": "t:sections.collection-list.settings.columns_mobile.options__2.label"
+        }
+      ],
+      "default": "1",
+      "label": "t:sections.collection-list.settings.columns_mobile.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "swipe_on_mobile",
+      "default": false,
+      "label": "t:sections.collection-list.settings.swipe_on_mobile.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.all.padding.section_padding_heading"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_top",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "t:sections.all.padding.padding_bottom",
+      "default": 36
+    }
+  ],
+  "blocks": [
+    {
+      "type": "featured_collection",
+      "name": "t:sections.collection-list.blocks.featured_collection.name",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.collection-list.blocks.featured_collection.settings.collection.label"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom category title"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom category image"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.collection-list.presets.name",
+      "blocks": [
+        {
+          "type": "featured_collection"
+        },
+        {
+          "type": "featured_collection"
+        },
+        {
+          "type": "featured_collection"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
